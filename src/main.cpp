@@ -1,5 +1,8 @@
 #include "main.h"
+
 #include "raylib-cpp.hpp"
+#include "resource_dir.h"
+
 #include <conio.h>
 #include <iostream>
 #include <vector>
@@ -8,6 +11,7 @@ using namespace std;
 
 int main()
 {
+    SearchAndSetResourceDir("resources");
     raylib::Window snakeWindow(600, 640, "Snake", FLAG_VSYNC_HINT);
     SetTargetFPS(75);
     InitAudioDevice();
@@ -23,23 +27,22 @@ int main()
     vector<Segment> snake    = initSnake(GRID_SIZE);
     Segment         food     = initFood(GRID_SIZE, snake);
     Sound           dieSound = LoadSound("effect.mp3");
-    
+
     while (!WindowShouldClose())
-    {       
+    {
 
         // Check If Move is Valid
-        if      (IsKeyDown(KEY_W) && currentDirection != 's') nextDirection = 'w';
+             if (IsKeyDown(KEY_W) && currentDirection != 's') nextDirection = 'w';
         else if (IsKeyDown(KEY_S) && currentDirection != 'w') nextDirection = 's';
         else if (IsKeyDown(KEY_A) && currentDirection != 'd') nextDirection = 'a';
         else if (IsKeyDown(KEY_D) && currentDirection != 'a') nextDirection = 'd';
-        
+
         // Move Head based on Direction, Also move it after Approx fixed time
         if (timeStepIterator % 10 == 0)
         {
             // Set Snake Direction
             currentDirection = nextDirection;
-            
-        
+
             moveSnake(currentDirection, snake, GRID_SIZE);
             wrapSnake(snake, GRID_SIZE);
 
@@ -52,8 +55,8 @@ int main()
             if (gameOver)
             {
                 PlaySound(dieSound);
-                resetGame(snake, food, GRID_SIZE, score, gameOver,
-                          timeStepIterator, currentDirection, nextDirection);
+                resetGame(snake, food, GRID_SIZE, score, gameOver, timeStepIterator,
+                          currentDirection, nextDirection);
             }
         }
 
@@ -62,8 +65,7 @@ int main()
     }
 }
 
-void checkFoodCollision(std::vector<Segment> &snake, Segment &food, int &score,
-                        const int GRID_SIZE)
+void checkFoodCollision(std::vector<Segment> &snake, Segment &food, int &score, const int GRID_SIZE)
 {
     // Food Collision Check
     if (CheckCollisionRecs(snake[0].rect, food.rect))
@@ -119,8 +121,7 @@ Segment initFood(const int GRID_SIZE, std::vector<Segment> &snake)
     return food;
 }
 
-void generateNewFood(Segment &food, const int GRID_SIZE,
-                     std::vector<Segment> &snake)
+void generateNewFood(Segment &food, const int GRID_SIZE, std::vector<Segment> &snake)
 {
 foodGeneration:
     food.rect.x = GetRandomValue(0, 14) * GRID_SIZE;
@@ -134,8 +135,7 @@ foodGeneration:
     }
 }
 
-void moveSnake(char currentDirection, std::vector<Segment> &snake,
-               const int GRID_SIZE)
+void moveSnake(char currentDirection, std::vector<Segment> &snake, const int GRID_SIZE)
 {
     Segment temp = snake[0];
 
@@ -159,14 +159,11 @@ void moveSnake(char currentDirection, std::vector<Segment> &snake,
 
 void wrapSnake(std::vector<Segment> &snake, const int GRID_SIZE)
 {
-    if (snake[0].rect.x > 600 - GRID_SIZE)
-        snake[0].rect.x = 0; // Right wrap
-    if (snake[0].rect.y > 600 - GRID_SIZE)
-        snake[0].rect.y = 0; // Down wrap
-    if (snake[0].rect.x < 0)
-        snake[0].rect.x = 600 - GRID_SIZE; // Left wrap
-    if (snake[0].rect.y < 0)
-        snake[0].rect.y = 600 - GRID_SIZE; // Up wrap
+    if (snake[0].rect.x > 600 - GRID_SIZE) snake[0].rect.x = 0; // Right wrap
+    if (snake[0].rect.y > 600 - GRID_SIZE) snake[0].rect.y = 0; // Down wrap
+
+    if (snake[0].rect.x < 0) snake[0].rect.x = 600 - GRID_SIZE; // Left wrap
+    if (snake[0].rect.y < 0) snake[0].rect.y = 600 - GRID_SIZE; // Up wrap
 }
 
 void grow(std::vector<Segment> &snake, int &score)
@@ -176,8 +173,7 @@ void grow(std::vector<Segment> &snake, int &score)
     snake.push_back(newSegment);
 }
 
-void render(std::vector<Segment> &snake, Segment &food, int &score,
-            int &highScore)
+void render(std::vector<Segment> &snake, Segment &food, int &score, int &highScore)
 {
     // Rendering Logic
     BeginDrawing();
@@ -193,22 +189,25 @@ void render(std::vector<Segment> &snake, Segment &food, int &score,
     DrawText(TextFormat("High Score: %d", highScore), 375, 605, 30, WHITE);
 
     food.draw();
-    
-    DrawRectangleLinesEx({0,0,600,600},5,DARKGRAY);
+
+    DrawRectangleLinesEx({0, 0, 600, 600}, 5, DARKGRAY);
     EndDrawing();
 }
 
-void resetGame(std::vector<Segment> &snake, Segment &food, int GRID_SIZE,
-               int &score, bool &gameOver, int &timeStepIterator,
-               char &currentDirection, char &nextDirection)
+void resetGame(std::vector<Segment> &snake,
+               Segment &food,
+               int GRID_SIZE,
+               int &score,
+               bool &gameOver,
+               int &timeStepIterator,
+               char &currentDirection,
+               char &nextDirection)
 {
-    snake = initSnake(GRID_SIZE);
-    food = initFood(GRID_SIZE, snake);
-
-    score = 0;
-    gameOver = false;
+    snake            = initSnake(GRID_SIZE);
+    food             = initFood(GRID_SIZE, snake);
+    gameOver         = false;
+    score            = 0;
     timeStepIterator = 0;
-
+    nextDirection    = 'd';
     currentDirection = 'd';
-    nextDirection = 'd';
 }
