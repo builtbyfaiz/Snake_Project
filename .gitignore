@@ -12,7 +12,6 @@ obj/
 *.zip
 *.tar.gz
 *.make
-Makefile
 
 # User-specific files
 *.rsuser
